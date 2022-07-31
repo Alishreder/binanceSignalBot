@@ -87,6 +87,7 @@ func main() {
 
 	for {
 
+		fmt.Println("start checking price percentage change")
 
 		for _, pair := range pairs {
 			priceChangePercentage, err := getTokenPriceChange(pair.Symbol, 1)
@@ -98,6 +99,9 @@ func main() {
 			}
 
 		}
+
+		fmt.Println("that's all, time to sleep ZZZ")
+
 		time.Sleep(time.Hour)
 
 	}
