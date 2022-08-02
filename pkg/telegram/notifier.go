@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"fmt"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -12,14 +13,21 @@ func (b *Bot) notifyUsers() {
 		select {
 		case message := <-b.sender.PriceChanges:
 
-			b.users.m.Lock()
-			for chatID := range b.users.users {
-				msg := tgbotapi.NewMessage(chatID, message)
-				b.bot.Send(msg)
+			users, err := b.usersRepository.GetAll()
+			if err != nil {
+				fmt.Println(err)
 			}
-			b.users.m.Unlock()
+
+			for _, v := range users {
+				msg := tgbotapi.NewMessage(v.ChatID, message)
+				_, err := b.bot.Send(msg)
+				if err != nil {
+					// TODO handle this error, delete from db and cache
+				}
+			}
+
 		default:
-			time.Sleep(time.Minute)
+			time.Sleep(time.Second * 5)
 		}
 
 	}

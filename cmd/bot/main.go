@@ -3,10 +3,39 @@ package main
 import (
 	"log"
 
+	"github.com/Alishreder/binanceSignalBot/pkg/crypto"
+	"github.com/Alishreder/binanceSignalBot/pkg/models"
+	"github.com/Alishreder/binanceSignalBot/pkg/repository/postgresDB"
 	"github.com/Alishreder/binanceSignalBot/pkg/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
+
+func main() {
+
+	telegramToken := getEnvVariable("TELEGRAM_TOKEN")
+
+	bot, err := tgbotapi.NewBotAPI(telegramToken)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bot.Debug = true
+
+	db, err := initDB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	usersRepository := postgresDB.NewUsersRepository(db)
+	priceSender := crypto.NewPriceSender()
+
+	telegramBot := telegram.NewBot(bot, priceSender, usersRepository)
+	telegramBot.Start()
+
+}
 
 func getEnvVariable(key string) string {
 	viper.SetConfigFile(".env")
@@ -25,18 +54,18 @@ func getEnvVariable(key string) string {
 	return value
 }
 
-func main() {
+func initDB() (*gorm.DB, error) {
+	dbURL := getEnvVariable("CONNECTION_STRING")
 
-	telegramToken := getEnvVariable("TELEGRAM_TOKEN")
-
-	bot, err := tgbotapi.NewBotAPI(telegramToken)
+	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
-		log.Panic(err)
+		return nil, err
+
 	}
 
-	bot.Debug = true
+	if err := db.AutoMigrate(&models.User{}); err != nil {
+		return nil, err
+	}
 
-	telegramBot := telegram.NewBot(bot)
-	telegramBot.Start()
-
+	return db, nil
 }

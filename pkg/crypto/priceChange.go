@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const templatePriceChange = "ALERT!\n %s change price on %.2f per hour"
+
 type pairData struct {
 	Symbol string
 }
@@ -34,7 +36,7 @@ func (p *PriceSender) TrackPriceChange() {
 				continue
 			}
 			if priceChangePercentage > 5 {
-				p.PriceChanges <- fmt.Sprintf("AAAAALLLLLEEEEERRRRRTTTTT %s change price on %f per hour\n", pair.Symbol, priceChangePercentage)
+				p.PriceChanges <- fmt.Sprintf(templatePriceChange, pair.Symbol, priceChangePercentage)
 			}
 
 		}

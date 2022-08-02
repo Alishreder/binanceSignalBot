@@ -2,32 +2,24 @@ package telegram
 
 import (
 	"log"
-	"sync"
 
 	"github.com/Alishreder/binanceSignalBot/pkg/crypto"
+	"github.com/Alishreder/binanceSignalBot/pkg/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Bot struct {
-	bot    *tgbotapi.BotAPI
-	sender crypto.PriceSender
-	users
+	bot             *tgbotapi.BotAPI
+	sender          crypto.PriceSender
+	usersRepository repository.UsersInterface
 }
 
-func NewBot(bot *tgbotapi.BotAPI) *Bot {
+func NewBot(bot *tgbotapi.BotAPI, sender crypto.PriceSender, userRepository repository.UsersInterface) *Bot {
 	return &Bot{
-		bot:    bot,
-		sender: crypto.NewPriceSender(),
-		users: users{
-			users: make(map[int64]bool),
-			m:     &sync.Mutex{},
-		},
+		bot:             bot,
+		sender:          sender,
+		usersRepository: userRepository,
 	}
-}
-
-type users struct {
-	users map[int64]bool
-	m     *sync.Mutex
 }
 
 func (b *Bot) Start() {
@@ -64,10 +56,4 @@ func (b *Bot) initUpdatesChanel() tgbotapi.UpdatesChannel {
 	u.Timeout = 60
 
 	return b.bot.GetUpdatesChan(u)
-}
-
-func (b *Bot) addNewUser(chatID int64) {
-	b.users.m.Lock()
-	b.users.users[chatID] = true
-	b.users.m.Unlock()
 }
