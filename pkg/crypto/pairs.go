@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -51,7 +51,7 @@ func getPairs() []pairData {
 
 	body, err := doHTTPGet(getProductsUrl)
 	if err != nil {
-		fmt.Println(err, getProductsUrl)
+		log.Printf("error while getting pairs from Binance: %s, url: %s", err.Error(), getProductsUrl)
 		return nil
 	}
 
@@ -59,7 +59,7 @@ func getPairs() []pairData {
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("error while unmarshaling data with pairs from Binance: %s", err.Error())
 		return nil
 	}
 
@@ -91,7 +91,7 @@ func validatePairs(rowPairs []pairInfo) (result []pairData) {
 func isMarketCapValid(c string, cs int) bool {
 	currentPrice, err := strconv.ParseFloat(c, 32)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("can't parse %s to float", c)
 		return false
 	}
 

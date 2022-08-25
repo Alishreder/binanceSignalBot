@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -37,12 +38,12 @@ type getPriceChangeResult struct {
 	Count              int    `json:"count"`
 }
 
-func getTokenPriceChange(symbol string, hours int) (float64, error) {
-	url := host + endpointGetPriceChange + "?symbol=" + symbol + "&windowSize=" + strconv.Itoa(hours) + "h"
+func getTokenPriceChange(symbol string, windowSize string) (float64, error) {
+	url := host + endpointGetPriceChange + "?symbol=" + symbol + "&windowSize=" + windowSize
 
 	body, err := doHTTPGet(url)
 	if err != nil {
-		fmt.Println(err, url)
+		log.Printf("error while trying to get token %s price: %s", symbol, err.Error())
 		return 0, fmt.Errorf("error: %w while doing request to %s", err, url)
 	}
 
@@ -50,13 +51,13 @@ func getTokenPriceChange(symbol string, hours int) (float64, error) {
 
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Println(err, string(body))
+		log.Printf("error while trying to unmarshal token %s price data, error: %s, body: %s", symbol, err.Error(), string(body))
 		return 0, fmt.Errorf("can't unmarshal body: %w", err)
 	}
 
 	priceChange, err := strconv.ParseFloat(response.PriceChangePercent, 32)
 	if err != nil {
-		fmt.Println(err, response.PriceChangePercent)
+		log.Printf("error while trying parce string to float for %s price, err: %s", symbol, err.Error())
 		return 0, fmt.Errorf("can't convert priceChange to float: %w", err)
 	}
 

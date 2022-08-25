@@ -7,15 +7,15 @@ import (
 	"github.com/Alishreder/binanceSignalBot/pkg/models"
 	"github.com/Alishreder/binanceSignalBot/pkg/repository/postgresDB"
 	"github.com/Alishreder/binanceSignalBot/pkg/telegram"
+	"github.com/Alishreder/binanceSignalBot/pkg/utilits"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
 
-	telegramToken := getEnvVariable("TELEGRAM_TOKEN")
+	telegramToken := utilits.GetEnvVariable("TELEGRAM_TOKEN")
 
 	bot, err := tgbotapi.NewBotAPI(telegramToken)
 	if err != nil {
@@ -37,25 +37,8 @@ func main() {
 
 }
 
-func getEnvVariable(key string) string {
-	viper.SetConfigFile(".env")
-
-	err := viper.ReadInConfig()
-
-	if err != nil {
-		log.Fatalf("Error while reading config file %s", err)
-	}
-
-	value, ok := viper.Get(key).(string)
-	if !ok {
-		log.Fatalf("Invalid type assertion")
-	}
-
-	return value
-}
-
 func initDB() (*gorm.DB, error) {
-	dbURL := getEnvVariable("CONNECTION_STRING")
+	dbURL := utilits.GetEnvVariable("CONNECTION_STRING")
 
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {

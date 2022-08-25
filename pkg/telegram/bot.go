@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"log"
+	"time"
 
 	"github.com/Alishreder/binanceSignalBot/pkg/crypto"
 	"github.com/Alishreder/binanceSignalBot/pkg/repository"
@@ -27,7 +28,8 @@ func (b *Bot) Start() {
 
 	updates := b.initUpdatesChanel()
 
-	go b.sender.TrackPriceChange()
+	go b.sender.TrackPriceChange("30m", 30*time.Minute)
+	go b.sender.TrackPriceChange("1h", time.Hour)
 
 	b.handleUpdates(updates)
 }
@@ -42,7 +44,9 @@ func (b *Bot) handleUpdates(updates tgbotapi.UpdatesChannel) {
 		}
 
 		if update.Message.IsCommand() {
-			b.handleCommand(update.Message)
+			if err := b.handleCommand(update.Message); err != nil {
+				b.notifyAdmin(err.Error())
+			}
 			continue
 		}
 
