@@ -2,9 +2,9 @@ package telegram
 
 import (
 	"log"
+	"os"
 	"strconv"
 
-	"github.com/Alishreder/binanceSignalBot/pkg/utilits"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -14,7 +14,7 @@ func (b *Bot) HandleError(message string) {
 }
 
 func (b *Bot) notifyAdmin(message string) {
-	adminChatID, err := strconv.Atoi(utilits.GetEnvVariable("CONNECTION_STRING"))
+	adminChatID, err := strconv.Atoi(os.Getenv("CONNECTION_STRING"))
 	if err != nil {
 		log.Printf("can't convert string to int while trying to send message to admin: %s", err.Error())
 		return
