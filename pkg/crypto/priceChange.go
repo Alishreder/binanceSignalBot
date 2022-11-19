@@ -36,7 +36,7 @@ func (p *PriceSender) TrackPriceChange(windowSize string, timeToSleep time.Durat
 			if err != nil {
 				continue
 			}
-			if priceChangePercentage > 4 {
+			if priceChangePercentage > 5 {
 				message := fmt.Sprintf(templatePriceChange, pair.Symbol, priceChangePercentage, windowSize, generateTradingViewURL(pair.Symbol))
 				fmt.Println(message)
 				p.PriceChanges <- message

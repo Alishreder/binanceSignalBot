@@ -1,4 +1,4 @@
-FROM golang:1.19-alpine3.16 AS builder
+FROM golang:alpine
 
 COPY . /github.com/Alishreder/binanceSignalBot/
 WORKDIR /github.com/Alishreder/binanceSignalBot/
